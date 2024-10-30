@@ -8,9 +8,18 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+type DBConfig struct {
+	DBHost     string `yaml:"db_host" env-required:"true"`
+	DBPort     string `yaml:"db_port" env-required:"true"`
+	DBUser     string `yaml:"db_user" env-required:"true"`
+	DBPassword string `yaml:"db_pass" env-required:"true"`
+	DBName     string `yaml:"db_name" env-required:"true"`
+}
+
 type Config struct {
-	Env  string
-	Port string
+	Env      string `yaml:"env" env-default:"production"`
+	Port     string `yaml:"port" env-required:"true"`
+	DBConfig `yaml:"db_config"`
 }
 
 func MustLoad() *Config {
