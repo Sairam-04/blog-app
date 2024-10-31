@@ -7,7 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Sairam-04/blog-app/backend/api/handler/user"
 	"github.com/Sairam-04/blog-app/backend/internal/config"
+	"github.com/Sairam-04/blog-app/backend/internal/repository"
+	"github.com/Sairam-04/blog-app/backend/internal/service"
+	"github.com/Sairam-04/blog-app/backend/pkg"
 )
 
 type App struct {
@@ -16,11 +20,18 @@ type App struct {
 }
 
 func New(cfg *config.Config) *App {
+	db := pkg.NewDBConnection(cfg)
+
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := user.NewUserHandler(userService)
+
+	router := loadRoutes(userHandler)
 	return &App{
-		router: loadRoutes(),
+		router: router,
 		server: &http.Server{
 			Addr:    cfg.Port,
-			Handler: loadRoutes(),
+			Handler: router,
 		},
 	}
 }

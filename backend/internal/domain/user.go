@@ -18,5 +18,6 @@ type User struct {
 }
 
 type UserRepository interface {
-	CreateUser(name, email, password, bio, profile_pic string) (*User, error)
+	CreateUser(user *User) error
+	IsEmailTaken(email string) (bool, error)
 }
