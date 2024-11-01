@@ -54,3 +54,7 @@ func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
+
+func (s *UserService) GetUser(userID string) (*domain.User, error) {
+	return s.userRepo.GetUserByID(userID)
+}

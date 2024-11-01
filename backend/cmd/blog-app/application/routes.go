@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Sairam-04/blog-app/backend/api/handler/user"
+	"github.com/Sairam-04/blog-app/backend/api/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -25,6 +26,7 @@ func loadRoutes(userHandler *user.UserHandler) *chi.Mux {
 func loadUserRoutes(router chi.Router, userHandler *user.UserHandler) {
 	router.Post("/register", userHandler.Register)
 	router.Get("/login", userHandler.Login)
+	router.With(middlewares.AuthMiddleware).Get("/{id}", userHandler.GetUser)
 }
 
 // Handlers - Services

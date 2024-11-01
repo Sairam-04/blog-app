@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
 )
@@ -29,4 +30,20 @@ func (r *UserRepository) IsEmailTaken(email string) (bool, error) {
 		return false, err
 	}
 	return exists, nil
+}
+
+func (r *UserRepository) GetUserByID(id string) (*domain.User, error) {
+	query := `SELECT * from users WHERE id=$1 LIMIT 1`
+	row := r.db.QueryRow(query, id)
+
+	var user domain.User
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Bio, &user.ProfilePicture, &user.CreatedAt, &user.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, err
+	}
+	return &user, nil
+
 }

@@ -42,3 +42,19 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in a User..")
 }
+
+func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+	users, err := h.userService.GetUser(id)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusNotFound, "user not found")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	utils.RespondWithJSON(w, http.StatusOK, users)
+
+}
