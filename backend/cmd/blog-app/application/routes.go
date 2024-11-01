@@ -25,7 +25,7 @@ func loadRoutes(userHandler *user.UserHandler) *chi.Mux {
 
 func loadUserRoutes(router chi.Router, userHandler *user.UserHandler) {
 	router.Post("/register", userHandler.Register)
-	router.Get("/login", userHandler.Login)
+	router.Post("/login", userHandler.Login)
 	router.With(middlewares.AuthMiddleware).Get("/{id}", userHandler.GetUser)
 }
 

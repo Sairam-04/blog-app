@@ -13,3 +13,8 @@ type Claims struct {
 	UserID string `json:"user_id"`
 	jwt.StandardClaims
 }
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

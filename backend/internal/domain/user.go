@@ -21,4 +21,5 @@ type UserRepository interface {
 	CreateUser(user *User) error
 	GetUserByID(id string) (*User, error)
 	IsEmailTaken(email string) (bool, error)
+	GetUser(name, value string) (*User, error)
 }

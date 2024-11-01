@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -17,14 +16,9 @@ func RespondWithError(w http.ResponseWriter, code int, msg string) {
 	})
 }
 
-func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	data, err := json.Marshal(payload)
-	if err != nil {
-		log.Println("failed to marshal JSON response %w", payload)
-		w.WriteHeader(500)
-		return
-	}
-	w.Header().Add("Content_type", "application/json")
+func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(data)
+
+	return json.NewEncoder(w).Encode(payload)
 }

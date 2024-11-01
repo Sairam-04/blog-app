@@ -2,7 +2,6 @@ package user
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
@@ -40,7 +39,21 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Logging in a User..")
+	var user types.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid payload request")
+		return
+	}
+	token, err := h.userService.LoginUser(&user)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusCreated, &types.UserResponse{
+		Success: true,
+		Token:   token,
+		Message: "User LoggedIn Successfully",
+	})
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {

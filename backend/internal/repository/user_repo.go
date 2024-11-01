@@ -47,3 +47,20 @@ func (r *UserRepository) GetUserByID(id string) (*domain.User, error) {
 	return &user, nil
 
 }
+
+func (r *UserRepository) GetUser(name, value string) (*domain.User, error) {
+	// query := `SELECT * FROM users WHERE $=$ LIMIT 1`
+	query := "SELECT * FROM users WHERE " + name + "=$1"
+	fmt.Println(query)
+	row := r.db.QueryRow(query, value)
+
+	var user domain.User
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Bio, &user.ProfilePicture, &user.CreatedAt, &user.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, err
+	}
+	return &user, nil
+}
