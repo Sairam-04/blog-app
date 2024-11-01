@@ -5,4 +5,4 @@ db_config:
   db_port: "5432"
   db_user: "postgres"
   db_pass: "sairam123"
-  db_name: "blog"
+  db_name: "blog_app"

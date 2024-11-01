@@ -7,6 +7,8 @@ import (
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
 	"github.com/Sairam-04/blog-app/backend/internal/service"
+	"github.com/Sairam-04/blog-app/backend/internal/types"
+	"github.com/Sairam-04/blog-app/backend/utils"
 )
 
 type UserHandler struct {
@@ -20,17 +22,21 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var user domain.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid payload request")
 		return
 	}
 
-	err := h.userService.RegisterUser(&user)
+	token, err := h.userService.RegisterUser(&user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User Registered Successfully"})
+	utils.RespondWithJSON(w, http.StatusCreated, &types.UserResponse{
+		Success: true,
+		Token:   token,
+		Message: "User Registered Successfully",
+	})
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
