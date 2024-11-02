@@ -33,9 +33,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			utils.RespondWithError(w, http.StatusUnauthorized, "malformed token")
 			return
 		}
-		type userIDKey struct{} // Define a custom type for the context key
 
-		var claimsContextKey userIDKey
+		var claimsContextKey types.UserIDKey
 		claims := &types.Claims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Sairam-04/blog-app/backend/api/handler/blog"
 	"github.com/Sairam-04/blog-app/backend/api/handler/user"
 	"github.com/Sairam-04/blog-app/backend/internal/config"
 	"github.com/Sairam-04/blog-app/backend/internal/repository"
@@ -26,7 +27,11 @@ func New(cfg *config.Config) *App {
 	userService := service.NewUserService(userRepo)
 	userHandler := user.NewUserHandler(userService)
 
-	router := loadRoutes(userHandler)
+	blogRepo := repository.NewBlogRepository(db)
+	blogService := service.NewBlogService(blogRepo)
+	blogHandler := blog.NewBlogHandler(blogService)
+
+	router := loadRoutes(userHandler, blogHandler)
 	return &App{
 		router: router,
 		server: &http.Server{

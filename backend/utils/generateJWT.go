@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -24,9 +23,6 @@ func GenerateToken(userID string) (string, error) {
 			ExpiresAt: expTime.Unix(),
 		},
 	}
-	fmt.Println("secret", jwtSecret)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	fmt.Println("token", token)
-
 	return token.SignedString([]byte(jwtSecret))
 }
