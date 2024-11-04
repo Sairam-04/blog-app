@@ -37,6 +37,7 @@ func loadUserRoutes(router chi.Router, userHandler *user.UserHandler) {
 func loadBlogRoutes(router chi.Router, blogHandler *blog.BlogHandler) {
 	router.With(middlewares.AuthMiddleware).Post("/create", blogHandler.PostBlog)
 	router.Get("/all", blogHandler.GetAllBlogs)
+	router.With(middlewares.AuthMiddleware).Get("/user", blogHandler.GetUserBlogs)
 }
 
 // Handlers - Services

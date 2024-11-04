@@ -40,3 +40,11 @@ func (s *BlogService) GetAllBlogs(limit, offset int) ([]types.BlogsResponse, err
 	}
 	return blogs, nil
 }
+
+func (s *BlogService) UserBlogs(userId uuid.UUID) ([]types.BlogResponse, error) {
+	blogs, err := s.blogRepo.GetUserBlogs(userId)
+	if err != nil {
+		return nil, err
+	}
+	return blogs, nil
+}

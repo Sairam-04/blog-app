@@ -72,3 +72,28 @@ func (h *BlogHandler) GetAllBlogs(w http.ResponseWriter, r *http.Request) {
 		Blogs:   blogs,
 	})
 }
+
+func (h *BlogHandler) GetUserBlogs(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(types.UserIDKey{}).(string)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "user is not authorized")
+		return
+	}
+	parsedUserId, err := uuid.Parse(userID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid user id")
+		return
+	}
+	blogs, err := h.blogService.UserBlogs(parsedUserId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, &types.UserBlogResp{
+		Success: true,
+		Message: "Fetched All blogs",
+		Error:   "",
+		Blogs:   blogs,
+	})
+
+}

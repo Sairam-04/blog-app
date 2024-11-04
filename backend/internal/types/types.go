@@ -26,7 +26,14 @@ type LoginRequest struct {
 
 type UserIDKey struct{}
 
-type BlogResponse struct{}
+type BlogResponse struct {
+	ID          uuid.UUID `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Content     string    `json:"content"`
+	Thumbnail   string    `json:"Thumbnail"`
+	CreatedAt   time.Time `json:"created_at"`
+}
 
 type GeneralResponse struct {
 	Success bool   `json:"success"`
@@ -49,4 +56,11 @@ type GetAllBlogsResp struct {
 	Message string          `json:"message"`
 	Error   string          `json:"error"`
 	Blogs   []BlogsResponse `json:"blogs"`
+}
+
+type UserBlogResp struct {
+	Success bool           `json:"success"`
+	Message string         `json:"message"`
+	Error   string         `json:"error"`
+	Blogs   []BlogResponse `json:"blogs"`
 }

@@ -20,4 +20,5 @@ type Blog struct {
 type BlogRepository interface {
 	CreateBlog(blog *Blog) (bool, error)
 	GetBlogs(limit, offset int) ([]types.BlogsResponse, error)
+	GetUserBlogs(userId uuid.UUID) ([]types.BlogResponse, error)
 }

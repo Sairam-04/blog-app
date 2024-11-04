@@ -2,10 +2,10 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
 	"github.com/Sairam-04/blog-app/backend/internal/types"
+	"github.com/google/uuid"
 )
 
 type BlogRepository struct {
@@ -43,7 +43,6 @@ func (r *BlogRepository) GetBlogs(limit, offset int) ([]types.BlogsResponse, err
 				b.created_at DESC 
 			LIMIT $1 OFFSET $2`
 	rows, err := r.db.Query(query, limit, offset)
-	fmt.Println(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -54,6 +53,30 @@ func (r *BlogRepository) GetBlogs(limit, offset int) ([]types.BlogsResponse, err
 		var blog types.BlogsResponse
 
 		if err := rows.Scan(&blog.ID, &blog.Name, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt); err != nil {
+			return nil, err
+		}
+		blogs = append(blogs, blog)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return blogs, nil
+}
+
+func (r *BlogRepository) GetUserBlogs(userId uuid.UUID) ([]types.BlogResponse, error) {
+	query := `SELECT id, title, description, content, thumbnail, created_at
+				FROM blogs b WHERE b.userId = $1;`
+	rows, err := r.db.Query(query, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var blogs []types.BlogResponse
+	for rows.Next() {
+		var blog types.BlogResponse
+
+		if err := rows.Scan(&blog.ID, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt); err != nil {
 			return nil, err
 		}
 		blogs = append(blogs, blog)
