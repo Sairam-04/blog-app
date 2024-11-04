@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
 	"github.com/Sairam-04/blog-app/backend/internal/types"
@@ -34,13 +35,14 @@ func (r *BlogRepository) GetBlogs(limit, offset int) ([]types.BlogsResponse, err
 				b.description, 
 				b.content, 
 				b.thumbnail, 
-				b.created_at 
+				b.created_at, 
+				b.updated_at
 			FROM 
 				blogs b
 			JOIN 
 				users u ON b.userId = u.id 
 			ORDER BY 
-				b.created_at DESC 
+				b.updated_at DESC 
 			LIMIT $1 OFFSET $2`
 	rows, err := r.db.Query(query, limit, offset)
 	if err != nil {
@@ -52,7 +54,7 @@ func (r *BlogRepository) GetBlogs(limit, offset int) ([]types.BlogsResponse, err
 	for rows.Next() {
 		var blog types.BlogsResponse
 
-		if err := rows.Scan(&blog.ID, &blog.Name, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt); err != nil {
+		if err := rows.Scan(&blog.ID, &blog.Name, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt, &blog.UpdatedAt); err != nil {
 			return nil, err
 		}
 		blogs = append(blogs, blog)
@@ -64,8 +66,8 @@ func (r *BlogRepository) GetBlogs(limit, offset int) ([]types.BlogsResponse, err
 }
 
 func (r *BlogRepository) GetUserBlogs(userId uuid.UUID) ([]types.BlogResponse, error) {
-	query := `SELECT id, title, description, content, thumbnail, created_at
-				FROM blogs b WHERE b.userId = $1;`
+	query := `SELECT id, title, description, content, thumbnail, created_at, updated_at
+				FROM blogs b WHERE b.userId = $1 ORDER BY b.updated_at DESC;`
 	rows, err := r.db.Query(query, userId)
 	if err != nil {
 		return nil, err
@@ -76,7 +78,7 @@ func (r *BlogRepository) GetUserBlogs(userId uuid.UUID) ([]types.BlogResponse, e
 	for rows.Next() {
 		var blog types.BlogResponse
 
-		if err := rows.Scan(&blog.ID, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt); err != nil {
+		if err := rows.Scan(&blog.ID, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt, &blog.UpdatedAt); err != nil {
 			return nil, err
 		}
 		blogs = append(blogs, blog)
@@ -85,4 +87,17 @@ func (r *BlogRepository) GetUserBlogs(userId uuid.UUID) ([]types.BlogResponse, e
 		return nil, err
 	}
 	return blogs, nil
+}
+
+func (r *BlogRepository) UpdateBlogByID(userId, blogId uuid.UUID, blog *types.UpdateBlogReq) (bool, error) {
+	query := `UPDATE blogs SET
+			  title = $1, description = $2, 
+			  content = $3, thumbnail = $4, updated_at = $5
+			  WHERE 
+			  userId = $6 and id = $7;`
+	_, err := r.db.Exec(query, blog.Title, blog.Description, blog.Content, blog.Thumbnail, time.Now(), userId, blogId)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

@@ -33,6 +33,7 @@ type BlogResponse struct {
 	Content     string    `json:"content"`
 	Thumbnail   string    `json:"Thumbnail"`
 	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type GeneralResponse struct {
@@ -49,6 +50,7 @@ type BlogsResponse struct {
 	Content     string    `json:"content"`
 	Thumbnail   string    `json:"Thumbnail"`
 	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type GetAllBlogsResp struct {
@@ -63,4 +65,11 @@ type UserBlogResp struct {
 	Message string         `json:"message"`
 	Error   string         `json:"error"`
 	Blogs   []BlogResponse `json:"blogs"`
+}
+
+type UpdateBlogReq struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Content     string `json:"content"`
+	Thumbnail   string `json:"Thumbnail"`
 }

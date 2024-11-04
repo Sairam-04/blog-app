@@ -48,3 +48,14 @@ func (s *BlogService) UserBlogs(userId uuid.UUID) ([]types.BlogResponse, error) 
 	}
 	return blogs, nil
 }
+
+func (s *BlogService) UdpateBlogService(userId uuid.UUID, blogId uuid.UUID, blog *types.UpdateBlogReq) error {
+	ok, err := s.blogRepo.UpdateBlogByID(userId, blogId, blog)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("unable to update the blog")
+	}
+	return nil
+}

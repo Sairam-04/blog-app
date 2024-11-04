@@ -2,6 +2,7 @@ package blog
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/Sairam-04/blog-app/backend/internal/service"
 	"github.com/Sairam-04/blog-app/backend/internal/types"
 	"github.com/Sairam-04/blog-app/backend/utils"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -94,6 +96,42 @@ func (h *BlogHandler) GetUserBlogs(w http.ResponseWriter, r *http.Request) {
 		Message: "Fetched All blogs",
 		Error:   "",
 		Blogs:   blogs,
+	})
+
+}
+
+func (h *BlogHandler) UpdateBlog(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(types.UserIDKey{}).(string)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "user is unauthorized")
+		return
+	}
+	parseId, err := uuid.Parse(userID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	blogId := chi.URLParam(r, "id")
+	parseBlogId, err := uuid.Parse(blogId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	var blog types.UpdateBlogReq
+	if err := json.NewDecoder(r.Body).Decode(&blog); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid request payload")
+		return
+	}
+
+	err = h.blogService.UdpateBlogService(parseId, parseBlogId, &blog)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, types.GeneralResponse{
+		Success: true,
+		Message: fmt.Sprintf("updated the blog with %s", blog.Title),
+		Error:   "",
 	})
 
 }
