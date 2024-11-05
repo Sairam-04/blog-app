@@ -13,10 +13,9 @@ COPY . .
 # Run the build using Makefile
 RUN CGO_ENABLED=0 GOOS=linux go build -o blog-app cmd/blog-app/main.go
 
-# Run time Stage
+# Run time stage
 FROM alpine:latest
 
-# Set working directory in the final image
 WORKDIR /app/backend
 
 # Copy the binary and the config file from the build stage

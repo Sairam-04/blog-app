@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+    ports:
+      - "8002:8002"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - my_network
+    environment:
+      DB_URL: "postgres://postgres:sairam123@database:5432/blog_app?sslmode=disable"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  database:
+    container_name: blog_db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: blog_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sairam123
+    networks:
+      - my_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d blog_app -h localhost"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  migrate:
+    build:
+      context: ./backend/db-docker
+    environment:
+      DB_URL: "postgres://postgres:sairam123@database:5432/blog_app?sslmode=disable"
+    networks:
+      - my_network
+    depends_on:
+      - database
+    command: goose -dir /app/migrations postgres "postgres://postgres:sairam123@database:5432/blog_app?sslmode=disable" up
+
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  pgdata:
