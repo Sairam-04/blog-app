@@ -17,7 +17,10 @@ func loadRoutes(userHandler *user.UserHandler, blogHandler *blog.BlogHandler) *c
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-
+	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Successfully running server"))
+	})
 	router.Route("/users", func(r chi.Router) {
 		loadUserRoutes(r, userHandler)
 	})

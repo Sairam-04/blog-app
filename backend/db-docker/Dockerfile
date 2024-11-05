@@ -5,7 +5,7 @@ FROM golang:1.23.2-alpine AS migration
 WORKDIR /app
 
 # Install git and other dependencies
-RUN apk add --no-cache git curl
+RUN apk add --no-cache git curl bash
 
 # Install Goose for migrations
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest

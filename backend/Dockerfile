@@ -3,6 +3,7 @@ FROM golang:1.23.2-alpine AS build
 
 WORKDIR /app/backend
 
+RUN apk add --no-cache git curl bash
 # Install required modules
 COPY go.mod go.sum Makefile ./
 RUN go mod download

@@ -11,8 +11,10 @@ services:
         condition: service_healthy
     networks:
       - my_network
+    volumes:
+      - ./backend/.env:/app/backend/.env  # Adjust this path accordingly
     environment:
-      DB_URL: "postgres://postgres:sairam123@database:5432/blog_app?sslmode=disable"
+      DB_URL: "postgres://postgres:sairam123@database:5434/blog_app?sslmode=disable"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 1m30s
@@ -32,7 +34,7 @@ services:
     networks:
       - my_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d blog_app -h localhost"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d blog_app -h blog_db"]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -50,7 +52,6 @@ services:
     depends_on:
       - database
     command: goose -dir /app/migrations postgres "postgres://postgres:sairam123@database:5432/blog_app?sslmode=disable" up
-
 
 networks:
   my_network:
