@@ -59,3 +59,27 @@ func (s *BlogService) UdpateBlogService(userId uuid.UUID, blogId uuid.UUID, blog
 	}
 	return nil
 }
+
+func (s *BlogService) GetBlog(blogId uuid.UUID) (*types.BlogsResponse, error) {
+	blogData, err := s.blogRepo.GetBlogByID(blogId)
+	if err != nil {
+		return blogData, err
+	}
+	return blogData, nil
+}
+
+func (s *BlogService) SearchBlog(keyword string, limit, offset int) ([]types.BlogsResponse, error) {
+	blogs, err := s.blogRepo.Search(keyword, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return blogs, nil
+}
+
+func (s *BlogService) DeleteBlog(userId uuid.UUID, blogId uuid.UUID) error {
+	err := s.blogRepo.DeleteBlog(userId, blogId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
@@ -100,4 +101,80 @@ func (r *BlogRepository) UpdateBlogByID(userId, blogId uuid.UUID, blog *types.Up
 		return false, err
 	}
 	return true, nil
+}
+
+func (r *BlogRepository) GetBlogByID(blogId uuid.UUID) (*types.BlogsResponse, error) {
+	fmt.Println(blogId)
+	query := `SELECT b.id, u.name, b.title, b.description, b.content, b.thumbnail, b.created_at, b.updated_at 
+			  FROM blogs b JOIN users u ON b.userId = u.id WHERE b.id=$1;`
+	var blog types.BlogsResponse
+	row := r.db.QueryRow(query, blogId)
+	err := row.Scan(&blog.ID, &blog.Name, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt, &blog.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &types.BlogsResponse{}, fmt.Errorf("blog not found")
+		}
+		return &types.BlogsResponse{}, err
+	}
+	return &blog, nil
+}
+
+func (r *BlogRepository) Search(keyword string, limit, offset int) ([]types.BlogsResponse, error) {
+	query := `SELECT 
+				b.id, 
+				u.name, 
+				b.title, 
+				b.description, 
+				b.content, 
+				b.thumbnail, 
+				b.created_at, 
+				b.updated_at
+			FROM 
+				blogs b
+			JOIN 
+				users u ON b.userId = u.id 
+
+			WHERE 
+				b.title ILIKE $1 OR b.description ILIKE $1
+			ORDER BY 
+				b.created_at DESC
+			LIMIT $2 OFFSET $3 ;`
+
+	rows, err := r.db.Query(query, keyword, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var blogs []types.BlogsResponse
+	for rows.Next() {
+		var blog types.BlogsResponse
+
+		if err := rows.Scan(&blog.ID, &blog.Name, &blog.Title, &blog.Description, &blog.Content, &blog.Thumbnail, &blog.CreatedAt, &blog.UpdatedAt); err != nil {
+			return nil, err
+		}
+		blogs = append(blogs, blog)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return blogs, nil
+}
+
+func (r *BlogRepository) DeleteBlog(userId, blogId uuid.UUID) error {
+	query := `DELETE FROM blogs WHERE userid = $1 and id = $2`
+	result, err := r.db.Exec(query, userId, blogId)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no blog found with the specified user ID and blog ID")
+	}
+	return nil
 }

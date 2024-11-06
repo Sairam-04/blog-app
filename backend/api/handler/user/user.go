@@ -8,6 +8,8 @@ import (
 	"github.com/Sairam-04/blog-app/backend/internal/service"
 	"github.com/Sairam-04/blog-app/backend/internal/types"
 	"github.com/Sairam-04/blog-app/backend/utils"
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type UserHandler struct {
@@ -22,6 +24,13 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var user domain.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "invalid payload request")
+		return
+	}
+
+	if err := validator.New().Struct(user); err != nil {
+		// typecast err to validator
+		validateErrs := err.(validator.ValidationErrors)
+		utils.RespondWithJSON(w, http.StatusBadRequest, utils.ValidationError(validateErrs))
 		return
 	}
 
@@ -57,12 +66,17 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	if id == "" {
-		utils.RespondWithError(w, http.StatusBadRequest, "invalid id")
+	userId, ok := r.Context().Value(types.UserIDKey{}).(string)
+	if !ok {
+		utils.RespondWithError(w, http.StatusBadRequest, "user is not authorized")
 		return
 	}
-	users, err := h.userService.GetUser(id)
+	parsedUserId, err := uuid.Parse(userId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "invalid user id")
+		return
+	}
+	users, err := h.userService.GetUser(parsedUserId)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusNotFound, "user not found")
 		return

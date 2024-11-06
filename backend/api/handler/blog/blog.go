@@ -133,5 +133,81 @@ func (h *BlogHandler) UpdateBlog(w http.ResponseWriter, r *http.Request) {
 		Message: fmt.Sprintf("updated the blog with %s", blog.Title),
 		Error:   "",
 	})
+}
 
+func (h *BlogHandler) GetBlogByID(w http.ResponseWriter, r *http.Request) {
+	blogId := chi.URLParam(r, "id")
+	parsedId, err := uuid.Parse(blogId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	blog, err := h.blogService.GetBlog(parsedId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, types.GetBlogResponse{
+		GeneralResponse: types.GeneralResponse{
+			Success: true,
+			Message: "blog post retrieved successfully",
+			Error:   "",
+		},
+		Blog: blog,
+	})
+}
+
+func (h *BlogHandler) SearchBlog(w http.ResponseWriter, r *http.Request) {
+	keyword := r.URL.Query().Get("keyword")
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || limit <= 0 {
+		offset = 0
+	}
+	blogs, err := h.blogService.SearchBlog(keyword, limit, offset)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, &types.GetAllBlogsResp{
+		Success: true,
+		Message: "successfully retrieved blogs",
+		Error:   "",
+		Blogs:   blogs,
+	})
+}
+
+func (h *BlogHandler) DeleteBlog(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(types.UserIDKey{}).(string)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "user is unauthorized")
+		return
+	}
+	parseId, err := uuid.Parse(userID)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	blogId := chi.URLParam(r, "id")
+	parseBlogId, err := uuid.Parse(blogId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = h.blogService.DeleteBlog(parseId, parseBlogId)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, &types.GeneralResponse{
+		Success: true,
+		Message: "Deleted blog successfully",
+		Error:   "",
+	})
 }

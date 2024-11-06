@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Sairam-04/blog-app/backend/internal/domain"
+	"github.com/google/uuid"
 )
 
 type UserRepository struct {
@@ -32,7 +33,7 @@ func (r *UserRepository) IsEmailTaken(email string) (bool, error) {
 	return exists, nil
 }
 
-func (r *UserRepository) GetUserByID(id string) (*domain.User, error) {
+func (r *UserRepository) GetUserByID(id uuid.UUID) (*domain.User, error) {
 	query := `SELECT * from users WHERE id=$1 LIMIT 1`
 	row := r.db.QueryRow(query, id)
 

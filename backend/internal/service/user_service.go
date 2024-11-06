@@ -65,7 +65,7 @@ func comparePasswords(hashedPassword, password []byte) (bool, error) {
 	return true, nil
 }
 
-func (s *UserService) GetUser(userID string) (*domain.User, error) {
+func (s *UserService) GetUser(userID uuid.UUID) (*domain.User, error) {
 	return s.userRepo.GetUserByID(userID)
 }
 

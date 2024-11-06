@@ -73,3 +73,8 @@ type UpdateBlogReq struct {
 	Content     string `json:"content"`
 	Thumbnail   string `json:"Thumbnail"`
 }
+
+type GetBlogResponse struct {
+	GeneralResponse
+	Blog *BlogsResponse `json:"blog"`
+}
