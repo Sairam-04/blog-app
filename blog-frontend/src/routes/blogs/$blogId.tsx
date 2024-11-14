@@ -1,3 +1,5 @@
+import Blog from '@/components/molecules/blog'
+import { BLOGS } from '@/data/data'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/blogs/$blogId')({
@@ -6,10 +8,9 @@ export const Route = createFileRoute('/blogs/$blogId')({
 
 function RouteComponent() {
   const {blogId} = Route.useParams()
+  const blog = BLOGS.filter((ele) => ele.id === blogId)
+  const blogData = blog[0]
   return(
-    <div>
-
-      This is blog no : {blogId}
-    </div>
+      <Blog {...blogData} />
   )
 }

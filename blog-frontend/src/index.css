@@ -65,4 +65,11 @@
   body {
     @apply bg-background text-foreground;
   }
+  .prose h2 span, .prose p span {
+    @apply bg-background text-foreground !important; 
+  }
+
+  .prose h2{
+    @apply text-xl font-semibold my-4;
+  }
 }
