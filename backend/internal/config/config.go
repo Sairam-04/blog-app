@@ -17,9 +17,10 @@ type DBConfig struct {
 }
 
 type Config struct {
-	Env      string `yaml:"env" env-default:"production"`
-	Port     string `yaml:"port" env-required:"true"`
-	DBConfig `yaml:"db_config"`
+	Env           string `yaml:"env" env-default:"production"`
+	Port          string `yaml:"port" env-required:"true"`
+	DBConfig      `yaml:"db_config"`
+	CloudinaryUrl string `yaml:"cloudinary_url"`
 }
 
 func MustLoad() *Config {

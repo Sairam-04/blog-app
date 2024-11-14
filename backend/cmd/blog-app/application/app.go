@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/Sairam-04/blog-app/backend/api/handler/blog"
+	"github.com/Sairam-04/blog-app/backend/api/handler/common"
 	"github.com/Sairam-04/blog-app/backend/api/handler/user"
+	"github.com/Sairam-04/blog-app/backend/cloudinary"
 	"github.com/Sairam-04/blog-app/backend/internal/config"
 	"github.com/Sairam-04/blog-app/backend/internal/repository"
 	"github.com/Sairam-04/blog-app/backend/internal/service"
@@ -22,6 +24,7 @@ type App struct {
 
 func New(cfg *config.Config) *App {
 	db := pkg.NewDBConnection(cfg)
+	cloudinary.Init(cfg.CloudinaryUrl)
 
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
@@ -31,7 +34,10 @@ func New(cfg *config.Config) *App {
 	blogService := service.NewBlogService(blogRepo)
 	blogHandler := blog.NewBlogHandler(blogService)
 
-	router := loadRoutes(userHandler, blogHandler)
+	uploadService := service.NewUploadImage()
+	commonHandler := common.NewCommonHandler(uploadService)
+
+	router := loadRoutes(userHandler, blogHandler, commonHandler)
 	return &App{
 		router: router,
 		server: &http.Server{

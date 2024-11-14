@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/Sairam-04/blog-app/backend/api/handler/blog"
+	"github.com/Sairam-04/blog-app/backend/api/handler/common"
 	"github.com/Sairam-04/blog-app/backend/api/handler/user"
 	"github.com/Sairam-04/blog-app/backend/api/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func loadRoutes(userHandler *user.UserHandler, blogHandler *blog.BlogHandler) *chi.Mux {
+func loadRoutes(userHandler *user.UserHandler, blogHandler *blog.BlogHandler, commonHandler *common.CommonHandler) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Logger)
@@ -27,6 +28,10 @@ func loadRoutes(userHandler *user.UserHandler, blogHandler *blog.BlogHandler) *c
 
 	router.Route("/blogs", func(r chi.Router) {
 		loadBlogRoutes(r, blogHandler)
+	})
+
+	router.Route("/upload", func(r chi.Router) {
+		loadCommonRoutes(r, commonHandler)
 	})
 	return router
 }
@@ -45,6 +50,10 @@ func loadBlogRoutes(router chi.Router, blogHandler *blog.BlogHandler) {
 	router.With(middlewares.AuthMiddleware).Get("/{id}", blogHandler.GetBlogByID)
 	router.Get("/search", blogHandler.SearchBlog)
 	router.With(middlewares.AuthMiddleware).Delete("/{id}", blogHandler.DeleteBlog)
+}
+
+func loadCommonRoutes(router chi.Router, commonHandler *common.CommonHandler) {
+	router.Post("/thumbnail", commonHandler.Upload)
 }
 
 // Handlers - Services

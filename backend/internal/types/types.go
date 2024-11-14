@@ -78,3 +78,8 @@ type GetBlogResponse struct {
 	GeneralResponse
 	Blog *BlogsResponse `json:"blog"`
 }
+
+type FileUploadResponse struct {
+	FilePath string `json:"file_url"`
+	GeneralResponse
+}
