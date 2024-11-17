@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import ThemeButton from "./themeButton";
+import { useGloablDrawerStore } from "./slider/store";
 
 export default function Header() {
+  const { setOpenGlobalDrawer, setGlobalDrawerType} = useGloablDrawerStore()
   return (
     <div className="sticky top-0 h-16 w-full py-4 px-2 backdrop-blur-3xl">
       <div className=" w-4/5 mx-auto flex justify-between items-center">
@@ -11,7 +13,12 @@ export default function Header() {
         </div>
         <NavItems />
         <div className="flex gap-3">
-          <Button variant="secondary">Login</Button>
+          <Button variant="secondary"
+            onClick = {()=>{
+              setOpenGlobalDrawer(true)
+              setGlobalDrawerType("LOGIN_USER")
+            }}
+          >Login</Button>
           <ThemeButton />
         </div>
       </div>
